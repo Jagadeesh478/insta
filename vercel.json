@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app.py"
+    }
+  ],
+  "env": {
+    "TWITTER_BEARER_TOKEN": "AAAAAAAAAAAAAAAAAAAAAJeN4wEAAAAA3%2Fk%2FwE%2BtXMQLUw1hj48dpNZuN5s%3DJdX2o0ssuoj1IIMV2gswWPWTxu4c6qOekO6C0yQ0QyKFMv2gx0"
+  }
+}

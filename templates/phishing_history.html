@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Phishing Scan History — ThreatShield</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#050b18;--border:rgba(99,179,237,.15);--muted:#94a3b8;--text:#e2e8f0;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;z-index:-1;
+      background:radial-gradient(ellipse 70% 50% at 15% 20%,rgba(16,185,129,.12) 0%,transparent 60%);}
+    header{display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;
+      border-bottom:1px solid var(--border);background:rgba(5,11,24,.8);}
+    .logo{font-size:1.3rem;font-weight:900;background:linear-gradient(135deg,#10b981,#34d399);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .back{color:var(--muted);font-size:.85rem;text-decoration:none;}
+    .back:hover{color:var(--text);}
+    .container{max-width:1000px;margin:0 auto;padding:2.5rem 1.5rem;}
+    h1{font-size:2rem;font-weight:800;margin-bottom:1.5rem;letter-spacing:-1px;}
+    table{width:100%;border-collapse:collapse;}
+    th,td{padding:.75rem 1rem;text-align:left;border-bottom:1px solid var(--border);font-size:.87rem;}
+    th{color:var(--muted);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;}
+    tr:hover{background:rgba(255,255,255,.02);}
+    td:nth-child(2){max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .badge{padding:.2rem .6rem;border-radius:999px;font-size:.72rem;font-weight:700;}
+    .safe{background:rgba(16,185,129,.15);color:#34d399;}
+    .warn{background:rgba(245,158,11,.15);color:#fcd34d;}
+    .risky{background:rgba(239,68,68,.15);color:#f87171;}
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">🛡️ Phishing Scanner</div>
+  <a class="back" href="/phishing">← Back to Scanner</a>
+</header>
+<div class="container">
+  <h1>📜 Scan History</h1>
+  {% if rows %}
+  <table>
+    <thead><tr><th>#</th><th>URL</th><th>Verdict</th><th>Safety %</th><th>HTTP</th><th>Date</th></tr></thead>
+    <tbody>
+    {% for row in rows %}
+    {% set cls = 'safe' if row[4] >= 85 else ('warn' if row[4] >= 60 else 'risky') %}
+    <tr>
+      <td>{{ row[0] }}</td>
+      <td title="{{ row[1] }}">{{ row[1] }}</td>
+      <td><span class="badge {{ cls }}">{{ row[2] }}</span></td>
+      <td>{{ row[4] }}%</td>
+      <td>{{ row[5] or 'N/A' }}</td>
+      <td>{{ row[10][:16] if row[10] else '' }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--muted);margin-top:2rem;">No scans yet.</p>
+  {% endif %}
+</div>
+</body>
+</html>

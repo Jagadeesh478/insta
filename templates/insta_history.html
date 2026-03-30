@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Instagram Analysis History — ThreatShield</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#050b18;--border:rgba(99,179,237,.15);--muted:#94a3b8;--text:#e2e8f0;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;z-index:-1;
+      background:radial-gradient(ellipse 70% 50% at 15% 15%,rgba(225,48,108,.12) 0%,transparent 60%);}
+    header{display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;
+      border-bottom:1px solid var(--border);background:rgba(5,11,24,.8);}
+    .logo{font-size:1.3rem;font-weight:900;background:linear-gradient(135deg,#e1306c,#f56040);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .back{color:var(--muted);font-size:.85rem;text-decoration:none;}
+    .back:hover{color:var(--text);}
+    .container{max-width:1000px;margin:0 auto;padding:2.5rem 1.5rem;}
+    h1{font-size:2rem;font-weight:800;margin-bottom:1.5rem;letter-spacing:-1px;}
+    table{width:100%;border-collapse:collapse;}
+    th,td{padding:.75rem 1rem;text-align:left;border-bottom:1px solid var(--border);font-size:.87rem;}
+    th{color:var(--muted);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;}
+    tr:hover{background:rgba(255,255,255,.02);}
+    .badge{padding:.2rem .6rem;border-radius:999px;font-size:.72rem;font-weight:700;}
+    .high{background:rgba(239,68,68,.15);color:#f87171;}
+    .mod {background:rgba(245,158,11,.15);color:#fcd34d;}
+    .low {background:rgba(16,185,129,.15);color:#34d399;}
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">📸 Instagram Detector</div>
+  <a class="back" href="/instagram">← Back to Analyzer</a>
+</header>
+<div class="container">
+  <h1>📜 Analysis History</h1>
+  {% if rows %}
+  <table>
+    <thead><tr>
+      <th>Username</th><th>Risk Score</th><th>Risk Level</th>
+      <th>Confidence</th><th>Date</th>
+    </tr></thead>
+    <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>@{{ r[0] }}</td>
+      <td><strong>{{ r[1] }}/100</strong></td>
+      <td><span class="badge {% if r[2]=='High Risk' %}high{% elif r[2]=='Moderate Risk' %}mod{% else %}low{% endif %}">{{ r[2] }}</span></td>
+      <td>{{ r[4] }} ({{ r[3] }}%)</td>
+      <td>{{ r[5][:16] }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--muted);margin-top:2rem;">No analyses yet. Go analyze an account!</p>
+  {% endif %}
+</div>
+</body>
+</html>

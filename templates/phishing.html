@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Phishing URL Scanner — ThreatShield</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#050b18;--surface:rgba(13,27,51,.7);--border:rgba(99,179,237,.15);--phish:#10b981;--text:#e2e8f0;--muted:#94a3b8;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;z-index:-1;
+      background:radial-gradient(ellipse 70% 50% at 15% 20%,rgba(16,185,129,.15) 0%,transparent 60%),
+                 radial-gradient(ellipse 60% 50% at 80% 80%,rgba(5,150,105,.1) 0%,transparent 60%);}
+    header{display:flex;align-items:center;justify-content:space-between;padding:1rem 3rem;
+      border-bottom:1px solid var(--border);backdrop-filter:blur(12px);
+      position:sticky;top:0;z-index:100;background:rgba(5,11,24,.8);}
+    .logo{font-size:1.3rem;font-weight:900;background:linear-gradient(135deg,#10b981,#34d399);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .back{font-size:.82rem;color:var(--muted);text-decoration:none;}
+    .back:hover{color:var(--text);}
+    .container{max-width:720px;margin:0 auto;padding:3rem 1.5rem;}
+    .page-header{text-align:center;margin-bottom:2.5rem;}
+    .page-header h1{font-size:2.2rem;font-weight:800;letter-spacing:-1px;
+      background:linear-gradient(135deg,#fff 20%,#6ee7b7);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .page-header p{color:var(--muted);margin-top:.5rem;font-size:.95rem;}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:18px;
+      padding:2rem;backdrop-filter:blur(16px);margin-bottom:1.5rem;}
+    .scan-row{display:flex;gap:.75rem;}
+    .scan-row input{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);
+      border-radius:10px;color:var(--text);font-family:'Inter',sans-serif;
+      font-size:.95rem;padding:.75rem 1.1rem;outline:none;transition:border-color .2s,box-shadow .2s;}
+    .scan-row input:focus{border-color:rgba(16,185,129,.5);box-shadow:0 0 0 3px rgba(16,185,129,.1);}
+    .scan-row button{padding:.75rem 1.5rem;border:none;border-radius:10px;
+      background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-family:'Inter',sans-serif;
+      font-size:.95rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .2s;}
+    .scan-row button:hover{opacity:.88;}
+
+    /* result */
+    .result-box{border-radius:16px;padding:1.5rem;margin-top:1.25rem;}
+    .safe    {background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);}
+    .risky   {background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);}
+    .warn    {background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);}
+    .verdict-row{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;}
+    .verdict-icon{font-size:2rem;}
+    .verdict-text{font-size:1.3rem;font-weight:800;}
+    .safe  .verdict-text{color:#34d399;}
+    .risky .verdict-text{color:#f87171;}
+    .warn  .verdict-text{color:#fcd34d;}
+
+    .meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.6rem;margin:.75rem 0;}
+    .meta-item{background:rgba(255,255,255,.04);border-radius:9px;padding:.6rem .8rem;font-size:.82rem;}
+    .meta-item span{display:block;color:var(--muted);font-size:.72rem;margin-bottom:.15rem;}
+
+    .reasons-list{margin-top:.75rem;list-style:none;display:flex;flex-direction:column;gap:.4rem;}
+    .reasons-list li{font-size:.86rem;padding:.4rem .75rem;border-radius:8px;
+      background:rgba(255,255,255,.03);border-left:3px solid rgba(255,255,255,.1);}
+    .safe  .reasons-list li{border-color:#10b981;}
+    .risky .reasons-list li{border-color:#ef4444;}
+    .warn  .reasons-list li{border-color:#f59e0b;}
+
+    .tls-block{margin-top:.75rem;background:rgba(255,255,255,.03);border-radius:9px;padding:.75rem 1rem;font-size:.85rem;}
+    .section-title{font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;}
+    .history-link{text-align:center;margin-top:1rem;}
+    .history-link a{color:#34d399;font-size:.85rem;text-decoration:none;}
+    .history-link a:hover{text-decoration:underline;}
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">🛡️ Phishing Scanner</div>
+  <a class="back" href="/">← Back to ThreatShield</a>
+</header>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Phishing URL Scanner</h1>
+    <p>Paste any URL below to run a deep threat analysis</p>
+  </div>
+
+  <div class="card">
+    <form method="POST">
+      <div class="scan-row">
+        <input type="text" name="url" value="{{ request.form.get('url','') }}"
+               placeholder="https://suspicious-site.com/login..." required />
+        <button type="submit">🔍 Scan</button>
+      </div>
+    </form>
+
+    {% if result %}
+    {% set cls = 'safe' if result.safe_percent >= 85 else ('warn' if result.safe_percent >= 60 else 'risky') %}
+    {% set icon = '✅' if result.safe_percent >= 85 else ('⚠️' if result.safe_percent >= 60 else '🚨') %}
+    <div class="result-box {{ cls }}">
+      <div class="verdict-row">
+        <div class="verdict-icon">{{ icon }}</div>
+        <div class="verdict-text">{{ result.verdict }}</div>
+      </div>
+
+      <div class="meta-grid">
+        <div class="meta-item"><span>Safety Score</span>{{ result.safe_percent }}%</div>
+        <div class="meta-item"><span>Domain Exists</span>{{ 'Yes' if result.domain_exists else 'No' }}</div>
+        <div class="meta-item"><span>Online</span>{{ 'Yes' if result.online else 'No' }}</div>
+        <div class="meta-item"><span>HTTP Status</span>{{ result.http_status or 'N/A' }}</div>
+        {% if result.title %}<div class="meta-item"><span>Page Title</span>{{ result.title[:30] }}</div>{% endif %}
+      </div>
+
+      {% if result.tls %}
+      <div class="tls-block">
+        <div class="section-title">SSL / TLS Certificate</div>
+        TLS Valid: <strong>{{ 'Yes' if result.tls.valid else 'No' }}</strong>
+        {% if result.tls.issuer %} &nbsp;·&nbsp; Issuer: {{ result.tls.issuer }}{% endif %}
+        {% if result.tls.expires_in_days is not none %} &nbsp;·&nbsp; Expires in {{ result.tls.expires_in_days }} days{% endif %}
+      </div>
+      {% endif %}
+
+      <div class="section-title" style="margin-top:.85rem;">Analysis Details</div>
+      <ul class="reasons-list">
+        {% for r in result.reasons %}<li>{{ r }}</li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="history-link"><a href="/phishing/history">📜 View Scan History</a></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ThreatShield — Unified Threat Detector</title>
+  <meta name="description" content="All-in-one platform to detect fake Instagram accounts, fake X/Twitter accounts, and phishing URLs." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #050b18;
+      --surface:   #0d1b33;
+      --border:    rgba(99,179,237,0.15);
+      --accent1:   #7c3aed;
+      --accent2:   #2563eb;
+      --accent3:   #0ea5e9;
+      --insta:     #e1306c;
+      --xbird:     #1d9bf0;
+      --phish:     #10b981;
+      --text:      #e2e8f0;
+      --muted:     #94a3b8;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── animated gradient background ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: -1;
+      background: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(124,58,237,.18) 0%, transparent 60%),
+                  radial-gradient(ellipse 60% 50% at 80% 80%, rgba(37,99,235,.15) 0%, transparent 60%),
+                  radial-gradient(ellipse 70% 50% at 50% 50%, rgba(14,165,233,.08) 0%, transparent 70%);
+      animation: bgShift 12s ease-in-out infinite alternate;
+    }
+    @keyframes bgShift {
+      0%   { opacity: 1; }
+      100% { opacity: .6; }
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 3rem;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(5,11,24,.7);
+    }
+    .logo {
+      font-size: 1.4rem; font-weight: 900; letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--accent1), var(--accent3));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo span { font-weight: 300; opacity: .7; }
+    .nav-pills { display: flex; gap: .5rem; }
+    .nav-pill {
+      padding: .4rem 1rem; border-radius: 999px;
+      font-size: .8rem; font-weight: 600; cursor: pointer;
+      border: 1px solid var(--border); color: var(--muted);
+      background: transparent; text-decoration: none;
+      transition: all .25s;
+    }
+    .nav-pill:hover { background: rgba(255,255,255,.05); color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+    }
+    .hero-badge {
+      display: inline-block;
+      padding: .35rem 1rem; border-radius: 999px;
+      font-size: .75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      background: rgba(124,58,237,.15); border: 1px solid rgba(124,58,237,.3);
+      color: #a78bfa; margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 900; line-height: 1.1; letter-spacing: -2px;
+      background: linear-gradient(135deg, #fff 30%, #94a3b8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 1.25rem;
+    }
+    .hero p {
+      font-size: 1.15rem; color: var(--muted); max-width: 580px;
+      margin: 0 auto 3rem; line-height: 1.7;
+    }
+
+    /* ── CARDS ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+      padding: 0 2rem 5rem;
+    }
+    .card {
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: rgba(13,27,51,.6);
+      backdrop-filter: blur(16px);
+      padding: 2rem;
+      display: flex; flex-direction: column; gap: 1.25rem;
+      transition: transform .3s, box-shadow .3s, border-color .3s;
+      position: relative; overflow: hidden;
+      text-decoration: none; color: inherit;
+    }
+    .card::before {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: 20px;
+      opacity: 0; transition: opacity .3s;
+    }
+    .card:hover { transform: translateY(-6px); }
+    .card.insta:hover { box-shadow: 0 20px 60px rgba(225,48,108,.2); border-color: rgba(225,48,108,.3); }
+    .card.xbird:hover { box-shadow: 0 20px 60px rgba(29,155,240,.2); border-color: rgba(29,155,240,.3); }
+    .card.phish:hover { box-shadow: 0 20px 60px rgba(16,185,129,.2); border-color: rgba(16,185,129,.3); }
+
+    .card-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+    }
+    .insta  .card-icon { background: rgba(225,48,108,.15); }
+    .xbird  .card-icon { background: rgba(29,155,240,.15); }
+    .phish  .card-icon { background: rgba(16,185,129,.15); }
+
+    .card h2 { font-size: 1.25rem; font-weight: 700; }
+    .card p   { font-size: .9rem; color: var(--muted); line-height: 1.6; }
+
+    .chip {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .25rem .75rem; border-radius: 999px;
+      font-size: .72rem; font-weight: 600;
+    }
+    .insta  .chip { background: rgba(225,48,108,.12); color: #f472b6; border: 1px solid rgba(225,48,108,.2); }
+    .xbird  .chip { background: rgba(29,155,240,.12);  color: #60c8ff; border: 1px solid rgba(29,155,240,.2); }
+    .phish  .chip { background: rgba(16,185,129,.12);  color: #34d399; border: 1px solid rgba(16,185,129,.2); }
+
+    .card-cta {
+      margin-top: auto;
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-size: .85rem; font-weight: 600;
+      padding: .65rem 1.25rem; border-radius: 10px;
+      transition: opacity .2s, transform .2s;
+      border: none; cursor: pointer; text-decoration: none;
+    }
+    .insta  .card-cta { background: linear-gradient(135deg,#e1306c,#f56040); color: #fff; }
+    .xbird  .card-cta { background: linear-gradient(135deg,#1d9bf0,#0369a1); color: #fff; }
+    .phish  .card-cta { background: linear-gradient(135deg,#10b981,#059669); color: #fff; }
+    .card-cta:hover { opacity: .88; transform: scale(1.02); }
+
+    /* ── STATS STRIP ── */
+    .stats-strip {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 2.5rem;
+      padding: 2.5rem 2rem; margin-bottom: 1rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.015);
+    }
+    .stat { text-align: center; }
+    .stat-num { font-size: 2rem; font-weight: 800;
+      background: linear-gradient(135deg, #a78bfa, #60c8ff);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat-label { font-size: .78rem; color: var(--muted); margin-top: .2rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center; padding: 2rem;
+      font-size: .8rem; color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: #a78bfa; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Threat<span>Shield</span></div>
+  <nav class="nav-pills">
+    <a class="nav-pill" href="/instagram">Instagram</a>
+    <a class="nav-pill" href="/xfake">X / Twitter</a>
+    <a class="nav-pill" href="/phishing">Phishing</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-badge">🛡️ All-in-One Security Suite</div>
+  <h1>Detect Threats.<br/>Stay Protected.</h1>
+  <p>ThreatShield combines three advanced AI-powered detectors to protect you from fake accounts and phishing attacks across multiple platforms.</p>
+</section>
+
+<div class="stats-strip">
+  <div class="stat"><div class="stat-num">3</div><div class="stat-label">Detection Modules</div></div>
+  <div class="stat"><div class="stat-num">9+</div><div class="stat-label">Risk Factors Analyzed</div></div>
+  <div class="stat"><div class="stat-num">Real-time</div><div class="stat-label">Analysis Engine</div></div>
+  <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Free & Open Source</div></div>
+</div>
+
+<main class="cards">
+
+  <!-- Instagram Card -->
+  <a class="card insta" href="/instagram" id="card-instagram">
+    <div class="card-icon">📸</div>
+    <div>
+      <span class="chip">🤖 AI Powered</span>
+    </div>
+    <h2>Instagram Fake Account Detector</h2>
+    <p>Analyze Instagram profiles for scam signals — follower ratios, bio keywords, DM patterns, account age, and more. Get a risk score from 0–100.</p>
+    <div class="card-cta">Analyze Instagram →</div>
+  </a>
+
+  <!-- X / Twitter Card -->
+  <a class="card xbird" href="/xfake" id="card-xfake">
+    <div class="card-icon">𝕏</div>
+    <div>
+      <span class="chip">🔗 Live API</span>
+    </div>
+    <h2>X / Twitter Fake Account Detector</h2>
+    <p>Pull live profile data directly from Twitter API v2 and apply rule-based ML detection to identify bots, spam and fake accounts.</p>
+    <div class="card-cta">Analyze X Account →</div>
+  </a>
+
+  <!-- Phishing Card -->
+  <a class="card phish" href="/phishing" id="card-phishing">
+    <div class="card-icon">🛡️</div>
+    <div>
+      <span class="chip">🌐 URL Scanner</span>
+    </div>
+    <h2>Phishing URL Scanner</h2>
+    <p>Paste any suspicious URL and get a full threat report — TLS validation, domain age, redirect chains, password forms, and more.</p>
+    <div class="card-cta">Scan URL →</div>
+  </a>
+
+</main>
+
+<footer>
+  Built with ❤️ — ThreatShield Unified Detector &nbsp;|&nbsp; 2024
+</footer>
+
+</body>
+</html>

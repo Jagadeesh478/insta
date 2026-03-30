@@ -307,7 +307,10 @@
 <div id="demoModal">
   <div class="modal-content">
     <span class="close-modal" id="closeModal">&times;</span>
-    <img id="demoVideo" src="{{ url_for('static', filename='demo.webp') }}" alt="Application Demo Walkthrough">
+    <video id="demoVideo" controls>
+      <source src="{{ url_for('static', filename='demo.webp') }}" type="video/webp">
+      Your browser does not support the video tag.
+    </video>
   </div>
 </div>
 
@@ -315,26 +318,24 @@
   const modal = document.getElementById('demoModal');
   const btn = document.getElementById('watchDemoBtn');
   const close = document.getElementById('closeModal');
-  const demoImg = document.getElementById('demoVideo');
+  const video = document.getElementById('demoVideo');
 
   btn.onclick = (e) => {
     e.preventDefault();
     modal.style.display = 'flex';
-    // Clear and reset source on opening to ensure the animation walkthrough plays from start
-    const originalSrc = demoImg.src;
-    demoImg.src = "";
-    setTimeout(() => {
-        demoImg.src = originalSrc;
-    }, 50);
+    video.currentTime = 0;
+    video.play();
   }
 
   close.onclick = () => {
     modal.style.display = 'none';
+    video.pause();
   }
 
   window.onclick = (event) => {
     if (event.target == modal) {
       modal.style.display = 'none';
+      video.pause();
     }
   }
 </script>

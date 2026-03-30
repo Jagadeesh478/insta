@@ -220,21 +220,21 @@
     /* ── MODAL STYLES ── */
     #demoModal {
       display: none; position: fixed; inset: 0; z-index: 1000;
-      background: rgba(2, 6, 23, 0.95);
-      align-items: center; justify-content: center; backdrop-filter: blur(25px);
+      background: rgba(2, 6, 23, 0.98);
+      align-items: center; justify-content: center; backdrop-filter: blur(40px);
     }
     .modal-content {
-      width: 90%; max-width: 1100px; position: relative;
-      background: #000; border-radius: 30px; overflow: hidden;
-      box-shadow: 0 0 100px rgba(255, 255, 255, 0.1);
+      width: 92%; max-width: 1200px; position: relative;
+      background: #000; border-radius: 40px; overflow: hidden;
+      box-shadow: 0 0 150px rgba(255, 255, 255, 0.15);
       border: 1px solid var(--border);
     }
     .close-modal {
-      position: absolute; right: 30px; top: 20px;
-      color: #fff; font-size: 3rem; font-weight: bold; cursor: pointer;
+      position: absolute; right: 40px; top: 30px;
+      color: #fff; font-size: 3.5rem; font-weight: bold; cursor: pointer;
       z-index: 1001; transition: 0.3s; line-height: 1;
     }
-    .close-modal:hover { transform: scale(1.1); color: #ff006e; }
+    .close-modal:hover { transform: scale(1.15); color: #ff006e; filter: drop-shadow(0 0 10px #ff006e); }
     #demoVideo { width: 100%; height: auto; display: block; }
   </style>
 </head>
@@ -307,7 +307,7 @@
 <div id="demoModal">
   <div class="modal-content">
     <span class="close-modal" id="closeModal">&times;</span>
-    <img id="demoVideo" src="{{ url_for('static', filename='demo.webp') }}" alt="Application Demo">
+    <img id="demoVideo" src="{{ url_for('static', filename='demo.webp') }}" alt="Application Demo Walkthrough">
   </div>
 </div>
 
@@ -320,10 +320,12 @@
   btn.onclick = (e) => {
     e.preventDefault();
     modal.style.display = 'flex';
-    // Reset source to restart animated webp
-    const currentSrc = demoImg.src;
+    // Clear and reset source on opening to ensure the animation walkthrough plays from start
+    const originalSrc = demoImg.src;
     demoImg.src = "";
-    demoImg.src = currentSrc;
+    setTimeout(() => {
+        demoImg.src = originalSrc;
+    }, 50);
   }
 
   close.onclick = () => {
@@ -338,7 +340,7 @@
 </script>
 
 <footer>
-  Built with ❤️ — ThreatShield Unified Detector &nbsp;|&nbsp; 2024
+  Built with ❤️ — ThreatShield Unified Detector &nbsp;|&nbsp; 2026
 </footer>
 </body>
 </html>

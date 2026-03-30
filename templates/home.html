@@ -216,6 +216,26 @@
       background: rgba(15, 23, 42, 0.4);
     }
     footer a { color: #fff; text-decoration: underline; }
+
+    /* ── MODAL STYLES ── */
+    #demoModal {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: rgba(2, 6, 23, 0.95);
+      align-items: center; justify-content: center; backdrop-filter: blur(25px);
+    }
+    .modal-content {
+      width: 90%; max-width: 1100px; position: relative;
+      background: #000; border-radius: 30px; overflow: hidden;
+      box-shadow: 0 0 100px rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
+    }
+    .close-modal {
+      position: absolute; right: 30px; top: 20px;
+      color: #fff; font-size: 3rem; font-weight: bold; cursor: pointer;
+      z-index: 1001; transition: 0.3s; line-height: 1;
+    }
+    .close-modal:hover { transform: scale(1.1); color: #ff006e; }
+    #demoVideo { width: 100%; height: auto; display: block; }
   </style>
 </head>
 <body>
@@ -283,9 +303,45 @@
 
 </main>
 
+<!-- Demo Modal -->
+<div id="demoModal">
+  <div class="modal-content">
+    <span class="close-modal" id="closeModal">&times;</span>
+    <video id="demoVideo" controls>
+      <source src="{{ url_for('static', filename='demo.webp') }}" type="video/webp">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('demoModal');
+  const btn = document.getElementById('watchDemoBtn');
+  const close = document.getElementById('closeModal');
+  const video = document.getElementById('demoVideo');
+
+  btn.onclick = (e) => {
+    e.preventDefault();
+    modal.style.display = 'flex';
+    video.currentTime = 0;
+    video.play();
+  }
+
+  close.onclick = () => {
+    modal.style.display = 'none';
+    video.pause();
+  }
+
+  window.onclick = (event) => {
+    if (event.target == modal) {
+      modal.style.display = 'none';
+      video.pause();
+    }
+  }
+</script>
+
 <footer>
   Built with ❤️ — ThreatShield Unified Detector &nbsp;|&nbsp; 2024
 </footer>
-
 </body>
 </html>

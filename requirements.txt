@@ -1,4 +1,4 @@
-flask>=3.0
+Flask
 requests
 beautifulsoup4
 python-whois

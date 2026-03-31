@@ -12,8 +12,13 @@ phishing_bp = Blueprint("phishing", __name__,
                         template_folder="../templates",
                         static_folder="../static")
 
-DB_PATH = os.path.join(PHISHING_DIR, "phish_logs.sqlite3")
-os.makedirs(PHISHING_DIR, exist_ok=True)
+# DB (Use /tmp on Vercel for write access)
+IS_VERCEL = os.environ.get("VERCEL") == "1"
+if IS_VERCEL:
+    DB_PATH = "/tmp/phish_logs.sqlite3"
+else:
+    DB_PATH = os.path.join(PHISHING_DIR, "phish_logs.sqlite3")
+    os.makedirs(PHISHING_DIR, exist_ok=True)
 
 def _get_db():
     db = getattr(g, "_phish_db", None)
@@ -57,6 +62,29 @@ def index():
             ))
             db.commit()
     return render_template("phishing.html", result=result)
+
+@phishing_bp.route("/scan_api", methods=["POST"])
+def scan_api():
+    from flask import jsonify
+    url = request.get_json(silent=True).get("url", "").strip()
+    if not url:
+        return jsonify({"error": "URL is required"}), 400
+    
+    result = analyze(url)
+    db = _get_db()
+    db.execute("""
+        INSERT INTO logs (url,verdict,score,safe_percent,http_status,
+                          domain_exists,online,tls_valid,title,created_at)
+        VALUES (?,?,?,?,?,?,?,?,?,?)
+    """, (
+        result["url"], result["verdict"], result["score"],
+        result["safe_percent"], result["http_status"],
+        int(result["domain_exists"]), int(result["online"]),
+        int(result["tls"].get("valid", False)), result["title"],
+        datetime.utcnow().isoformat(),
+    ))
+    db.commit()
+    return jsonify(result)
 
 @phishing_bp.route("/history")
 def history():

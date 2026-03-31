@@ -54,5 +54,7 @@ def analyze():
                 "account_age_days": profile_data["account_age_days"],
                 "verified":       profile_data["verified"],
             },
+            "is_simulated":       profile_data.get("is_simulated", False),
+            "simulation_reason":  profile_data.get("simulation_reason", "")
         },
     })

@@ -15,14 +15,18 @@
       border-bottom:1px solid var(--border);backdrop-filter:blur(12px);
       position:sticky;top:0;z-index:100;background:rgba(5,11,24,.8);}
     .logo{font-size:1.3rem;font-weight:900;background:linear-gradient(135deg,#10b981,#34d399);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;}
     .back{font-size:.82rem;color:var(--muted);text-decoration:none;}
     .back:hover{color:var(--text);}
     .container{max-width:720px;margin:0 auto;padding:3rem 1.5rem;}
     .page-header{text-align:center;margin-bottom:2.5rem;}
     .page-header h1{font-size:2.2rem;font-weight:800;letter-spacing:-1px;
       background:linear-gradient(135deg,#fff 20%,#6ee7b7);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;}
     .page-header p{color:var(--muted);margin-top:.5rem;font-size:.95rem;}
     .card{background:var(--surface);border:1px solid var(--border);border-radius:18px;
       padding:2rem;backdrop-filter:blur(16px);margin-bottom:1.5rem;}
@@ -78,48 +82,132 @@
     <p>Paste any URL below to run a deep threat analysis</p>
   </div>
 
+    #scanninUI { display: none; margin-top: 1.5rem; text-align: center; }
+    .scan-status { font-size: 0.9rem; color: var(--muted); margin-bottom: 0.8rem; font-weight: 600; }
+    .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; }
+    .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.3s; }
+    .scan-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 1rem; border-radius: 99px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); color: #10b981; font-size: 0.75rem; font-weight: 800; margin-bottom: 1rem; text-transform: uppercase; }
+    .scan-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: blink 1s infinite alternate; }
+    @keyframes blink { from { opacity: 0.3; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">🛡️ Phishing Scanner</div>
+  <a class="back" href="/">← Back to ThreatShield</a>
+</header>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Phishing URL Scanner</h1>
+    <p>Paste any URL below to run a deep threat analysis</p>
+  </div>
+
   <div class="card">
-    <form method="POST">
+    <form id="phishForm">
       <div class="scan-row">
-        <input type="text" name="url" value="{{ request.form.get('url','') }}"
-               placeholder="https://suspicious-site.com/login..." required />
-        <button type="submit">🔍 Scan</button>
+        <input type="text" id="urlInput" placeholder="https://suspicious-site.com/login..." required />
+        <button type="submit" id="scanBtn">🔍 Scan</button>
       </div>
     </form>
 
-    {% if result %}
-    {% set cls = 'safe' if result.safe_percent >= 85 else ('warn' if result.safe_percent >= 60 else 'risky') %}
-    {% set icon = '✅' if result.safe_percent >= 85 else ('⚠️' if result.safe_percent >= 60 else '🚨') %}
-    <div class="result-box {{ cls }}">
+    <div id="scanninUI">
+      <div class="scan-badge"><div class="scan-dot"></div> Deep Analysis Active</div>
+      <div class="scan-status" id="scanStatus">Establishing secure connection...</div>
+      <div class="progress-container"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div id="resultBox" style="display:none;"></div>
+  </div>
+
+  <div class="history-link"><a href="/phishing/history">📜 View Scan History</a></div>
+</div>
+
+<script>
+  const scanSteps = [
+    "Resolving domain DNS records...",
+    "Querying WHOIS for registration data...",
+    "Establishing secure TLS handshake...",
+    "Analyzing redirect chains...",
+    "Scanning page content for phishing forms...",
+    "Checking blacklists and threat intelligence...",
+    "Calculating final safety score..."
+  ];
+
+  document.getElementById('phishForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const url = document.getElementById('urlInput').value.trim();
+    const btn = document.getElementById('scanBtn');
+    const scanUI = document.getElementById('scanninUI');
+    const fill = document.getElementById('progressFill');
+    const status = document.getElementById('scanStatus');
+    const resultBox = document.getElementById('resultBox');
+
+    btn.disabled = true;
+    scanUI.style.display = 'block';
+    resultBox.style.display = 'none';
+
+    // Simulate progress
+    for(let i=0; i<scanSteps.length; i++) {
+        status.textContent = scanSteps[i];
+        fill.style.width = ((i+1) / scanSteps.length * 100) + '%';
+        await new Promise(r => setTimeout(r, 600 + Math.random() * 400));
+    }
+
+    try {
+      const res = await fetch('/phishing/scan_api', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ url })
+      });
+      const data = await res.json();
+      renderPhishResult(data);
+    } catch(err) {
+      alert('Error: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      scanUI.style.display = 'none';
+      fill.style.width = '0%';
+    }
+  });
+
+  function renderPhishResult(r) {
+    const box = document.getElementById('resultBox');
+    const safePercent = r.safe_percent;
+    const cls = safePercent >= 85 ? 'safe' : (safePercent >= 60 ? 'warn' : 'risky');
+    const icon = safePercent >= 85 ? '✅' : (safePercent >= 60 ? '⚠️' : '🚨');
+
+    box.className = 'result-box ' + cls;
+    box.innerHTML = `
       <div class="verdict-row">
-        <div class="verdict-icon">{{ icon }}</div>
-        <div class="verdict-text">{{ result.verdict }}</div>
+        <div class="verdict-icon">${icon}</div>
+        <div class="verdict-text">${r.verdict}</div>
       </div>
-
       <div class="meta-grid">
-        <div class="meta-item"><span>Safety Score</span>{{ result.safe_percent }}%</div>
-        <div class="meta-item"><span>Domain Exists</span>{{ 'Yes' if result.domain_exists else 'No' }}</div>
-        <div class="meta-item"><span>Online</span>{{ 'Yes' if result.online else 'No' }}</div>
-        <div class="meta-item"><span>HTTP Status</span>{{ result.http_status or 'N/A' }}</div>
-        {% if result.title %}<div class="meta-item"><span>Page Title</span>{{ result.title[:30] }}</div>{% endif %}
+        <div class="meta-item"><span>Safety Score</span>${safePercent}%</div>
+        <div class="meta-item"><span>Domain Exists</span>${r.domain_exists ? 'Yes' : 'No'}</div>
+        <div class="meta-item"><span>Online</span>${r.online ? 'Yes' : 'No'}</div>
+        <div class="meta-item"><span>HTTP Status</span>${r.http_status || 'N/A'}</div>
+        ${r.title ? `<div class="meta-item"><span>Page Title</span>${r.title.substring(0, 30)}</div>` : ''}
       </div>
-
-      {% if result.tls %}
+      ${r.tls ? `
       <div class="tls-block">
         <div class="section-title">SSL / TLS Certificate</div>
-        TLS Valid: <strong>{{ 'Yes' if result.tls.valid else 'No' }}</strong>
-        {% if result.tls.issuer %} &nbsp;·&nbsp; Issuer: {{ result.tls.issuer }}{% endif %}
-        {% if result.tls.expires_in_days is not none %} &nbsp;·&nbsp; Expires in {{ result.tls.expires_in_days }} days{% endif %}
-      </div>
-      {% endif %}
-
+        TLS Valid: <strong>${r.tls.valid ? 'Yes' : 'No'}</strong>
+        ${r.tls.issuer ? ` &nbsp;·&nbsp; Issuer: ${r.tls.issuer}` : ''}
+        ${r.tls.expires_in_days !== null ? ` &nbsp;·&nbsp; Expires in ${r.tls.expires_in_days} days` : ''}
+      </div>` : ''}
       <div class="section-title" style="margin-top:.85rem;">Analysis Details</div>
       <ul class="reasons-list">
-        {% for r in result.reasons %}<li>{{ r }}</li>{% endfor %}
+        ${r.reasons.map(reason => `<li>${reason}</li>`).join('')}
       </ul>
-    </div>
-    {% endif %}
-  </div>
+    `;
+    box.style.display = 'block';
+    box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+</script>
+</body>
+</html>
 
   <div class="history-link"><a href="/phishing/history">📜 View Scan History</a></div>
 </div>

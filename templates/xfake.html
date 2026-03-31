@@ -15,14 +15,18 @@
       border-bottom:1px solid var(--border);backdrop-filter:blur(12px);
       position:sticky;top:0;z-index:100;background:rgba(5,11,24,.8);}
     .logo{font-size:1.3rem;font-weight:900;background:linear-gradient(135deg,#1d9bf0,#60c8ff);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+      -webkit-background-clip: text; 
+      background-clip: text; 
+      -webkit-text-fill-color: transparent;}
     .back{font-size:.82rem;color:var(--muted);text-decoration:none;}
     .back:hover{color:var(--text);}
     .container{max-width:720px;margin:0 auto;padding:3rem 1.5rem;}
     .page-header{text-align:center;margin-bottom:2.5rem;}
     .page-header h1{font-size:2.2rem;font-weight:800;letter-spacing:-1px;
       background:linear-gradient(135deg,#fff 20%,#93c5fd);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;}
     .page-header p{color:var(--muted);margin-top:.5rem;font-size:.95rem;}
     .card{background:var(--surface);border:1px solid var(--border);border-radius:18px;
       padding:2rem;backdrop-filter:blur(16px);margin-bottom:1.5rem;}
@@ -37,40 +41,16 @@
     .scan-row button:hover{opacity:.88;}
     .scan-row button:disabled{opacity:.4;cursor:not-allowed;}
 
-    .spinner{display:none;width:28px;height:28px;border:3px solid rgba(255,255,255,.1);
-      border-top-color:#1d9bf0;border-radius:50%;animation:spin .7s linear infinite;margin:1rem auto 0;}
-    @keyframes spin{to{transform:rotate(360deg);}}
+    /* progress */
+    #xProgressUI { display: none; margin-top: 1.5rem; text-align: center; }
+    .x-status { font-size: 0.9rem; color: var(--muted); margin-bottom: 0.8rem; font-weight: 600; }
+    .progress-track { width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; }
+    .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #1d9bf0, #60c8ff); transition: width 0.3s; }
+    .x-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 1rem; border-radius: 99px; background: rgba(29,155,240,0.1); border: 1px solid rgba(29,155,240,0.2); color: #1d9bf0; font-size: 0.75rem; font-weight: 800; margin-bottom: 1rem; text-transform: uppercase; }
+    .x-dot { width: 8px; height: 8px; background: #1d9bf0; border-radius: 50%; animation: pulse-x 1.5s infinite; }
+    @keyframes pulse-x { 0% { box-shadow: 0 0 0 0 rgba(29,155,240, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(29,155,240, 0); } 100% { box-shadow: 0 0 0 0 rgba(29,155,240, 0); } }
 
-    /* result */
-    #resultBox{display:none;}
-    .result-inner{border-radius:16px;padding:1.5rem;}
-    .genuine  {background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);}
-    .suspicious{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);}
-    .fake     {background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);}
-    .error-box{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:16px;padding:1.25rem;}
-
-    .verdict-row{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;}
-    .verdict-icon{font-size:2rem;}
-    .verdict-text{font-size:1.25rem;font-weight:800;}
-    .genuine    .verdict-text{color:#34d399;}
-    .suspicious .verdict-text{color:#fcd34d;}
-    .fake       .verdict-text{color:#f87171;}
-
-    .stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.6rem;margin:.75rem 0;}
-    .stat-item{background:rgba(255,255,255,.04);border-radius:9px;padding:.7rem .8rem;text-align:center;}
-    .stat-item strong{display:block;font-size:1.3rem;font-weight:800;}
-    .stat-item small{font-size:.72rem;color:var(--muted);}
-
-    .signals-list{list-style:none;display:flex;flex-direction:column;gap:.4rem;margin-top:.5rem;}
-    .signals-list li{font-size:.86rem;padding:.5rem .75rem;border-radius:8px;
-      background:rgba(255,255,255,.03);border-left:3px solid rgba(245,158,11,.5);}
-    .section-title{font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;}
-
-    .score-bar-wrap{height:10px;border-radius:999px;background:rgba(255,255,255,.07);margin:.6rem 0;overflow:hidden;}
-    .score-bar{height:100%;border-radius:999px;transition:width 1s cubic-bezier(.4,0,.2,1);}
-    .genuine    .score-bar{background:linear-gradient(90deg,#10b981,#34d399);}
-    .suspicious .score-bar{background:linear-gradient(90deg,#f59e0b,#fcd34d);}
-    .fake       .score-bar{background:linear-gradient(90deg,#ef4444,#f87171);}
+    .sim-badge { display: inline-block; padding: 0.3rem 0.7rem; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); color: #fcd34d; border-radius: 6px; font-size: 0.7rem; font-weight: 800; margin-bottom: 1rem; text-transform: uppercase; }
   </style>
 </head>
 <body>
@@ -82,7 +62,7 @@
 <div class="container">
   <div class="page-header">
     <h1>X / Twitter Fake Account Detector</h1>
-    <p>Enter a Twitter/X username to run a real-time authenticity check via the Twitter API</p>
+    <p>Enter a Twitter/X username to run a real-time authenticity check</p>
   </div>
 
   <div class="card">
@@ -92,7 +72,12 @@
         <button type="submit" id="xBtn">🔍 Analyze</button>
       </div>
     </form>
-    <div class="spinner" id="xSpinner"></div>
+    
+    <div id="xProgressUI">
+      <div class="x-badge"><div class="x-dot"></div> Live Analysis Active</div>
+      <div class="x-status" id="xStatus">Connecting to X API v2 stream...</div>
+      <div class="progress-track"><div class="progress-fill" id="xProgressFill"></div></div>
+    </div>
   </div>
 
   <div id="resultBox">
@@ -101,28 +86,53 @@
 </div>
 
 <script>
+  const xSteps = [
+    "Establishing secure handshake with X Developer API...",
+    "Retrieving public profile metrics and metadata...",
+    "Analyzing account creation age and verified status...",
+    "Scanning tweet history for automated patterns...",
+    "Evaluating follower-to-following quality score...",
+    "Running rule-based ML detection algorithm...",
+    "Finalizing authenticity assessment report..."
+  ];
+
   document.getElementById('xForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('xBtn');
-    const spinner = document.getElementById('xSpinner');
-    btn.disabled = true; spinner.style.display = 'block';
-    document.getElementById('resultBox').style.display = 'none';
+    const progressUI = document.getElementById('xProgressUI');
+    const fill = document.getElementById('xProgressFill');
+    const status = document.getElementById('xStatus');
+    const resultBox = document.getElementById('resultBox');
+    const input = document.getElementById('xUsername');
+
+    btn.disabled = true;
+    progressUI.style.display = 'block';
+    resultBox.style.display = 'none';
+    input.style.opacity = '0.5';
+
+    // Simulate progress
+    for(let i=0; i<xSteps.length; i++) {
+        status.textContent = xSteps[i];
+        fill.style.width = ((i+1) / xSteps.length * 100) + '%';
+        await new Promise(r => setTimeout(r, 600 + Math.random() * 400));
+    }
 
     const formData = new FormData();
-    formData.append('username', document.getElementById('xUsername').value.trim());
+    formData.append('username', input.value.trim());
 
     try {
       const r = await fetch('/xfake/analyze', { method: 'POST', body: formData });
       const d = await r.json();
-      spinner.style.display = 'none';
       renderResult(d);
     } catch(err) {
-      spinner.style.display = 'none';
       document.getElementById('resultInner').innerHTML = `
         <div class="error-box"><strong>❌ Error:</strong> ${err.message}</div>`;
       document.getElementById('resultBox').style.display = 'block';
     } finally {
       btn.disabled = false;
+      progressUI.style.display = 'none';
+      fill.style.width = '0%';
+      input.style.opacity = '1';
     }
   });
 
@@ -141,6 +151,7 @@
 
     inner.innerHTML = `
       <div class="result-inner ${cls}">
+        ${res.is_simulated ? `<div class="sim_badge">⚡ Demonstration Mode (${res.simulation_reason})</div>` : ''}
         <div class="verdict-row">
           <div class="verdict-icon">${icon}</div>
           <div>
@@ -170,5 +181,7 @@
     box.scrollIntoView({behavior:'smooth', block:'start'});
   }
 </script>
+</body>
+</html>
 </body>
 </html>

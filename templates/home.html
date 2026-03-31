@@ -60,7 +60,9 @@
     .logo {
       font-size: 1.7rem; font-weight: 950; letter-spacing: -1.5px;
       background: linear-gradient(135deg, #fff, var(--accent3), var(--accent1));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text; 
+      background-clip: text; 
+      -webkit-text-fill-color: transparent;
       text-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
     }
     .logo span { font-weight: 300; opacity: .9; }
@@ -97,7 +99,9 @@
       font-size: clamp(3.5rem, 9vw, 7rem);
       font-weight: 950; line-height: 0.9; letter-spacing: -5px;
       background: linear-gradient(to bottom, #ffffff 70%, rgba(255,255,255,0.6));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
       margin-bottom: 1.5rem;
       filter: drop-shadow(0 0 40px rgba(255,255,255,0.3));
     }
@@ -204,7 +208,9 @@
     .stat { text-align: center; }
     .stat-num { font-size: 4rem; font-weight: 950;
       background: linear-gradient(135deg, #fff, #60a5fa);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
       filter: drop-shadow(0 0 20px rgba(255,255,255,0.4)); }
     .stat-label { font-size: 1.1rem; color: #fff; font-weight: 900; margin-top: .6rem; text-transform: uppercase; letter-spacing: 1.5px; }
 
@@ -218,24 +224,49 @@
     footer a { color: #fff; text-decoration: underline; }
 
     /* ── MODAL STYLES ── */
+    /* ── MODAL & CAROUSEL ── */
     #demoModal {
       display: none; position: fixed; inset: 0; z-index: 1000;
       background: rgba(2, 6, 23, 0.98);
       align-items: center; justify-content: center; backdrop-filter: blur(40px);
     }
     .modal-content {
-      width: 92%; max-width: 1200px; position: relative;
-      background: #000; border-radius: 40px; overflow: hidden;
-      box-shadow: 0 0 150px rgba(255, 255, 255, 0.15);
+      width: 92%; max-width: 1000px; position: relative;
+      background: #000; border-radius: 30px; overflow: hidden;
+      box-shadow: 0 0 100px rgba(255, 255, 255, 0.1);
       border: 1px solid var(--border);
     }
     .close-modal {
-      position: absolute; right: 40px; top: 30px;
-      color: #fff; font-size: 3.5rem; font-weight: bold; cursor: pointer;
-      z-index: 1001; transition: 0.3s; line-height: 1;
+      position: absolute; right: 25px; top: 15px;
+      color: #fff; font-size: 2.5rem; font-weight: bold; cursor: pointer;
+      z-index: 1002; transition: 0.3s;
     }
-    .close-modal:hover { transform: scale(1.15); color: #ff006e; filter: drop-shadow(0 0 10px #ff006e); }
-    #demoVideo { width: 100%; height: auto; display: block; }
+    .close-modal:hover { color: var(--accent1); transform: scale(1.1); }
+    
+    .carousel-container { position: relative; width: 100%; aspect-ratio: 16/10; }
+    .carousel-slide { 
+        position: absolute; inset: 0; opacity: 0; transition: opacity 0.8s ease-in-out; 
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .carousel-slide.active { opacity: 1; z-index: 10; }
+    .carousel-slide img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .carousel-nav {
+        position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+        display: flex; gap: 1rem; z-index: 1005;
+    }
+    .nav-dot {
+        width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.3);
+        cursor: pointer; transition: 0.3s;
+    }
+    .nav-dot.active { background: #fff; transform: scale(1.3); box-shadow: 0 0 15px #fff; }
+    
+    .slide-caption {
+        position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);
+        background: rgba(0,0,0,0.8); padding: 1rem 2rem; border-radius: 99px;
+        color: #fff; font-weight: 800; font-size: 1.1rem; border: 1px solid var(--border);
+        backdrop-filter: blur(10px); text-align: center; white-space: nowrap;
+    }
   </style>
 </head>
 <body>
@@ -255,7 +286,6 @@
   <p>ThreatShield combines three advanced AI-powered detectors to protect you from fake accounts and phishing attacks across multiple platforms.</p>
   <div class="hero-actions">
     <a href="#card-instagram" class="card-cta insta" style="margin-top: 0; min-width: 200px;">🚀 Start Analysis</a>
-    <a href="#" class="btn-demo" id="watchDemoBtn">🎬 Watch Demo (3m)</a>
   </div>
 </section>
 
@@ -303,43 +333,7 @@
 
 </main>
 
-<!-- Demo Modal -->
-<div id="demoModal">
-  <div class="modal-content">
-    <span class="close-modal" id="closeModal">&times;</span>
-    <video id="demoVideo" controls preload="auto" playsinline>
-      <source src="{{ url_for('static', filename='demo.mp4') }}" type="video/mp4">
-      <source src="{{ url_for('static', filename='demo.webp') }}" type="video/webp">
-      Your browser does not support the video tag.
-    </video>
-  </div>
-</div>
 
-<script>
-  const modal = document.getElementById('demoModal');
-  const btn = document.getElementById('watchDemoBtn');
-  const close = document.getElementById('closeModal');
-  const video = document.getElementById('demoVideo');
-
-  btn.onclick = (e) => {
-    e.preventDefault();
-    modal.style.display = 'flex';
-    video.currentTime = 0;
-    video.play();
-  }
-
-  close.onclick = () => {
-    modal.style.display = 'none';
-    video.pause();
-  }
-
-  window.onclick = (event) => {
-    if (event.target == modal) {
-      modal.style.display = 'none';
-      video.pause();
-    }
-  }
-</script>
 
 <footer>
   Built with ❤️ — ThreatShield Unified Detector &nbsp;|&nbsp; 2026
